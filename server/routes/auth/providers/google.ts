@@ -128,9 +128,9 @@ if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
                 where: { email: profile.email.toLowerCase() },
               });
 
-              if (!userExists) {
-                throw GmailAccountCreationError();
-              }
+              // if (!userExists) {
+              // throw GmailAccountCreationError();
+              //}
 
               throw TeamDomainRequiredError();
             }
