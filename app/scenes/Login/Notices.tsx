@@ -18,13 +18,6 @@ export default function Notices() {
           invite email.
         </NoticeAlert>
       )}
-      {notice === "gmail-account-creation" && (
-        <NoticeAlert>
-          Sorry, a new account cannot be created with a personal Gmail address.
-          <hr />
-          Please use a Google Workspaces account instead.
-        </NoticeAlert>
-      )}
       {notice === "maximum-teams" && (
         <NoticeAlert>
           The team you authenticated with is not authorized on this
