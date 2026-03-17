@@ -1,15 +1,14 @@
 ARG APP_PATH=/opt/outline
-FROM outlinewiki/outline-base AS base
+FROM node:16-alpine AS base
 
 ARG APP_PATH
 WORKDIR $APP_PATH
 
-# Copy source and build
 COPY . .
-RUN yarn build
+RUN yarn install --frozen-lockfile && yarn build
 
 # ---
-FROM node:18-alpine AS runner
+FROM node:16-alpine AS runner
 
 ARG APP_PATH
 WORKDIR $APP_PATH
