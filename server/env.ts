@@ -212,7 +212,10 @@ export class Environment {
    * loadbalancer.
    */
   @IsBoolean()
-  public FORCE_HTTPS = this.toBoolean(process.env.FORCE_HTTPS ?? "true");
+  public FORCE_HTTPS = this.toBoolean(
+    process.env.FORCE_HTTPS ??
+      (process.env.NODE_ENV === "development" ? "false" : "true")
+  );
 
   /**
    * Whether to support multiple subdomains in a single instance.

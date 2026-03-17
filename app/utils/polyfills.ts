@@ -26,9 +26,10 @@ export async function loadPolyfills() {
  * @returns true if the current browser supports ResizeObserver
  */
 function supportsResizeObserver() {
+  if (typeof window === "undefined") return false;
   return (
-    "ResizeObserver" in global &&
-    "ResizeObserverEntry" in global &&
-    "contentRect" in ResizeObserverEntry.prototype
+    "ResizeObserver" in window &&
+    "ResizeObserverEntry" in window &&
+    "contentRect" in (window as any).ResizeObserverEntry.prototype
   );
 }

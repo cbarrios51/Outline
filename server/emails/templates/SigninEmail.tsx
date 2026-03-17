@@ -41,7 +41,7 @@ signin page at: ${teamUrl}
 
   protected render({ token, teamUrl }: Props) {
     if (env.ENVIRONMENT === "development") {
-      logger.debug("email", `Sign-In link: ${this.signinLink(token)}`);
+      logger.info("email", `Sign-In link (copia en el navegador): ${this.signinLink(token)}`);
     }
 
     return (

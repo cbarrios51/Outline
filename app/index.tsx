@@ -28,17 +28,13 @@ if (env.SENTRY_DSN) {
   initSentry(history);
 }
 
-if ("serviceWorker" in window.navigator) {
+// En desarrollo no registrar Service Worker para evitar caché que deja la pantalla en blanco al recargar (F5)
+if ("serviceWorker" in window.navigator && env.ENVIRONMENT === "production") {
   window.addEventListener("load", () => {
-    // see: https://bugs.chromium.org/p/chromium/issues/detail?id=1097616
-    // In some rare (<0.1% of cases) this call can return `undefined`
     const maybePromise = window.navigator.serviceWorker.register(
       "/static/service-worker.js",
-      {
-        scope: "/",
-      }
+      { scope: "/" }
     );
-
     if (maybePromise?.then) {
       maybePromise
         .then((registration) => {

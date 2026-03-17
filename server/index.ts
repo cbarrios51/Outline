@@ -88,7 +88,14 @@ async function start(id: number, disconnect: () => void) {
   }
 
   app.use(compress());
-  app.use(helmet());
+  // En desarrollo no enviar HSTS para que el navegador no fuerce https://localhost
+  app.use(
+    helmet(
+      env.ENVIRONMENT === "development"
+        ? { hsts: false }
+        : {}
+    )
+  );
 
   // catch errors in one place, automatically set status and response headers
   onerror(app);
@@ -122,7 +129,8 @@ async function start(id: number, disconnect: () => void) {
       }`
     );
   });
-  server.listen(normalizedPortFlag || env.PORT || "3000");
+  const port = normalizedPortFlag || env.PORT || "3000";
+  server.listen(port, "0.0.0.0");
   process.once("SIGTERM", shutdown);
   process.once("SIGINT", shutdown);
 
