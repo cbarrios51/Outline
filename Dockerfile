@@ -1,11 +1,15 @@
 ARG APP_PATH=/opt/outline
-FROM outlinewiki/outline-base as base
+FROM outlinewiki/outline-base AS base
 
 ARG APP_PATH
 WORKDIR $APP_PATH
 
+# Copy source and build
+COPY . .
+RUN yarn build
+
 # ---
-  FROM node:18-alpine AS runner
+FROM node:18-alpine AS runner
 
 ARG APP_PATH
 WORKDIR $APP_PATH
