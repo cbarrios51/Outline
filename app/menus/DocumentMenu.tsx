@@ -14,8 +14,8 @@ import {
   NewDocumentIcon,
   DownloadIcon,
   RestoreIcon,
-  GlobeIcon,
   CrossIcon,
+  GlobeIcon,
 } from "outline-icons";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -95,8 +95,8 @@ function DocumentMenu({
     activeCollectionId: document.collectionId,
   });
   const { t } = useTranslation();
-  const [showTranslate, setShowTranslate] = React.useState(false);
   const isMobile = useMobile();
+  const [showTranslateModal, setShowTranslateModal] = React.useState(false);
   const [renderModals, setRenderModals] = React.useState(false);
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const [
@@ -330,15 +330,15 @@ function DocumentMenu({
               visible: !document.isStarred && !!can.star,
               icon: <StarredIcon />,
             },
-            {
-              type: "button" as const,
-              title: t("Traducir documento"),
-              visible: !!can.read,
-              onClick: () => setShowTranslate(true),
-              icon: <GlobeIcon />,
-            },
             // Pin document
             actionToMenuItem(pinDocument, context),
+            {
+              type: "button",
+              title: t("Traducir documento"),
+              visible: !!can.read,
+              onClick: () => setShowTranslateModal(true),
+              icon: <GlobeIcon />,
+            },
             {
               type: "separator",
             },
@@ -474,10 +474,10 @@ function DocumentMenu({
           </>
         )}
       </ContextMenu>
-      {showTranslate && (
+      {showTranslateModal && (
         <TranslateModal
           documentId={document.id}
-          onRequestClose={() => setShowTranslate(false)}
+          onRequestClose={() => setShowTranslateModal(false)}
         />
       )}
       {renderModals && (
