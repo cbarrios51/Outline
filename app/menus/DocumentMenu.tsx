@@ -4,6 +4,7 @@ import {
   PrintIcon,
   NewDocumentIcon,
   RestoreIcon,
+  GlobeIcon,
 } from "outline-icons";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -48,6 +49,7 @@ import usePolicy from "~/hooks/usePolicy";
 import useRequest from "~/hooks/useRequest";
 import useStores from "~/hooks/useStores";
 import useToasts from "~/hooks/useToasts";
+import TranslateModal from "~/components/TranslateModal";
 import { MenuItem } from "~/types";
 import { editDocumentUrl, newDocumentPath } from "~/utils/routeHelpers";
 
@@ -92,6 +94,7 @@ function DocumentMenu({
   });
   const { t } = useTranslation();
   const isMobile = useMobile();
+  const [showTranslate, setShowTranslate] = React.useState(false);
   const file = React.useRef<HTMLInputElement>(null);
   const { data, loading, request } = useRequest(() =>
     subscriptions.fetchPage({
@@ -283,6 +286,13 @@ function DocumentMenu({
             actionToMenuItem(importDocument, context),
             actionToMenuItem(createTemplate, context),
             actionToMenuItem(duplicateDocument, context),
+            {
+              type: "button",
+              title: t("Traducir documento"),
+              visible: !!can.read,
+              onClick: () => setShowTranslate(true),
+              icon: <GlobeIcon />,
+            },
             actionToMenuItem(publishDocument, context),
             actionToMenuItem(unpublishDocument, context),
             actionToMenuItem(archiveDocument, context),
@@ -343,6 +353,12 @@ function DocumentMenu({
           </>
         )}
       </ContextMenu>
+      {showTranslate && (
+        <TranslateModal
+          documentId={document.id}
+          onRequestClose={() => setShowTranslate(false)}
+        />
+      )}
     </>
   );
 }

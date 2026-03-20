@@ -366,6 +366,13 @@ export class Environment {
   public DD_SERVICE = process.env.DD_SERVICE ?? "outline";
 
   /**
+   * DeepL API key for automatic document translation.
+   */
+  @IsOptional()
+  @IsNotEmpty()
+  public DEEPL_API_KEY = this.toOptionalString(process.env.DEEPL_API_KEY);
+
+  /**
    * Google OAuth2 client credentials. To enable authentication with Google.
    */
   @IsOptional()
