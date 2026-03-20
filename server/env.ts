@@ -580,7 +580,7 @@ export class Environment {
   /**
    * The product name
    */
-  public APP_NAME = "Outline";
+  public APP_NAME = "Outline"; // v2
 
   private toOptionalString(value: string | undefined) {
     return value ? value : undefined;
