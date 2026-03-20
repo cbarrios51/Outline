@@ -1,11 +1,11 @@
 ARG APP_PATH=/opt/outline
-FROM ghcr.io/cbarrios51/outline-base:latest as base
+FROM outlinewiki/outline-base as base
 
 ARG APP_PATH
 WORKDIR $APP_PATH
 
 # ---
-FROM node:16-alpine AS runner
+FROM node:18-alpine AS runner
 
 ARG APP_PATH
 WORKDIR $APP_PATH
