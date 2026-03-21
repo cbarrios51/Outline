@@ -8,8 +8,7 @@ FROM node:18-alpine AS builder
 ARG APP_PATH
 WORKDIR $APP_PATH
 
-# Classic Yarn 1.x (matches yarn.lock)
-RUN npm install -g yarn@1.22.22
+# Use Yarn already present in node:18-alpine (do not npm install -g yarn — EEXIST conflict)
 
 COPY package.json yarn.lock ./
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
@@ -31,8 +30,6 @@ FROM node:18-alpine AS runner
 ARG APP_PATH
 WORKDIR $APP_PATH
 ENV NODE_ENV=production
-
-RUN npm install -g yarn@1.22.22
 
 COPY --from=builder $APP_PATH/build ./build
 COPY --from=builder $APP_PATH/server ./server
