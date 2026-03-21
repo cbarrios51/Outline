@@ -9,7 +9,7 @@ FROM node:16-alpine AS builder
 ARG APP_PATH
 WORKDIR $APP_PATH
 
-RUN npm install -g yarn@1.22.22
+# node:16-alpine already provides /usr/local/bin/yarn — do not npm install -g yarn (EEXIST conflict)
 
 COPY package.json yarn.lock ./
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
@@ -32,8 +32,6 @@ ARG APP_PATH
 WORKDIR $APP_PATH
 ENV NODE_ENV=production
 
-RUN npm install -g yarn@1.22.22
-
 COPY --from=builder $APP_PATH/build ./build
 COPY --from=builder $APP_PATH/server ./server
 COPY --from=builder $APP_PATH/public ./public
@@ -48,4 +46,5 @@ RUN addgroup -g 1001 -S nodejs && \
 USER nodejs
 
 EXPOSE 3000
-CMD ["yarn", "start"]
+# Same as package.json "start" — avoids relying on global yarn in PATH for nodejs user
+CMD ["node", "./build/server/index.js"]
