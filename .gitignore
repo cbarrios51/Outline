@@ -12,3 +12,5 @@ fakes3/*
 *.pem
 *.key
 *.cert
+check-migrations.js
+git-log.txt
