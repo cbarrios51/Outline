@@ -37,6 +37,10 @@ import Template from "~/components/ContextMenu/Template";
 import Flex from "~/components/Flex";
 import Modal from "~/components/Modal";
 import Switch from "~/components/Switch";
+import TranslateModal, {
+  TranslateSuccessPayload,
+} from "~/components/TranslateModal";
+import { useDocumentTranslation } from "~/contexts/DocumentTranslationContext";
 import { actionToMenuItem } from "~/actions";
 import { pinDocument, createTemplate } from "~/actions/definitions/documents";
 import useActionContext from "~/hooks/useActionContext";
@@ -45,9 +49,6 @@ import useMobile from "~/hooks/useMobile";
 import usePolicy from "~/hooks/usePolicy";
 import useStores from "~/hooks/useStores";
 import useToasts from "~/hooks/useToasts";
-import TranslateModal, {
-  TranslateSuccessPayload,
-} from "~/components/TranslateModal";
 import { MenuItem } from "~/types";
 import {
   documentHistoryUrl,
@@ -68,7 +69,7 @@ type Props = {
   label?: (props: MenuButtonHTMLProps) => React.ReactNode;
   onOpen?: () => void;
   onClose?: () => void;
-  /** When set, translation runs in-app with save/revert; when omitted the menu hides translate. */
+  /** Optional override; otherwise uses DocumentTranslationContext from the document view. */
   inlineTranslate?: {
     onSuccess: (payload: TranslateSuccessPayload) => void;
   };
@@ -86,6 +87,10 @@ function DocumentMenu({
   onClose,
   inlineTranslate,
 }: Props) {
+  const documentTranslation = useDocumentTranslation();
+  const translateHandler =
+    inlineTranslate?.onSuccess ??
+    documentTranslation?.onTranslateSuccess;
   const team = useCurrentTeam();
   const { policies, collections, documents } = useStores();
   const { showToast } = useToasts();
@@ -433,7 +438,7 @@ function DocumentMenu({
             {
               type: "button",
               title: t("Translate document"),
-              visible: !!can.read && !!inlineTranslate,
+              visible: !!can.read && !!translateHandler,
               onClick: () => setShowTranslateModal(true),
               icon: <GlobeIcon />,
             },
@@ -481,11 +486,11 @@ function DocumentMenu({
           </>
         )}
       </ContextMenu>
-      {showTranslateModal && inlineTranslate && (
+      {showTranslateModal && translateHandler && (
         <TranslateModal
           documentId={document.id}
           onRequestClose={() => setShowTranslateModal(false)}
-          onTranslateSuccess={inlineTranslate.onSuccess}
+          onTranslateSuccess={translateHandler}
         />
       )}
       {renderModals && (

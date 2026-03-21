@@ -56,12 +56,9 @@ function TranslateModal({
       } = json.data;
 
       showToast(
-        t(
-          "Translation ready. Source language detected: {{source}}.",
-          {
-            source: (detectedSourceLanguage ?? "?").toString().toUpperCase(),
-          }
-        ),
+        t("Translation ready. Source language detected: {{source}}.", {
+          source: (detectedSourceLanguage ?? "?").toString().toUpperCase(),
+        }),
         { type: "success" }
       );
 

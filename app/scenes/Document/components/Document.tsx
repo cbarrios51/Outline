@@ -30,6 +30,8 @@ import Modal from "~/components/Modal";
 import PageTitle from "~/components/PageTitle";
 import PlaceholderDocument from "~/components/PlaceholderDocument";
 import RegisterKeyDown from "~/components/RegisterKeyDown";
+import { TranslateSuccessPayload } from "~/components/TranslateModal";
+import { DocumentTranslationContext } from "~/contexts/DocumentTranslationContext";
 import withStores from "~/components/withStores";
 import type { Editor as TEditor } from "~/editor";
 import { NavigationNode } from "~/types";
@@ -43,7 +45,6 @@ import {
   documentUrl,
   updateDocumentUrl,
 } from "~/utils/routeHelpers";
-import { TranslateSuccessPayload } from "~/components/TranslateModal";
 import Container from "./Container";
 import Contents from "./Contents";
 import Editor from "./Editor";
@@ -113,8 +114,10 @@ class DocumentScene extends React.Component<Props> {
 
   /** Snapshot before an in-app translation preview; cleared on save or revert. */
   @observable
-  translationPreview: { originalText: string; originalTitle: string } | null =
-    null;
+  translationPreview: {
+    originalText: string;
+    originalTitle: string;
+  } | null = null;
 
   getEditorText: () => string = () => this.props.document.text;
 
@@ -614,38 +617,45 @@ class DocumentScene extends React.Component<Props> {
                   )}
                 />
                 <Prompt
-                  when={!!this.translationPreview && !team?.collaborativeEditing}
-                  message={t(
-                    `Discard translation preview?\nYou will lose the translated text unless you saved it.`
-                  ) as string}
+                  when={
+                    !!this.translationPreview && !team?.collaborativeEditing
+                  }
+                  message={
+                    t(
+                      `Discard translation preview?\nYou will lose the translated text unless you saved it.`
+                    ) as string
+                  }
                 />
               </>
             )}
-            <Header
-              document={document}
-              documentHasHeadings={hasHeadings}
-              shareId={shareId}
-              isRevision={!!revision}
-              isDraft={document.isDraft}
-              isEditing={!readOnly && !team?.collaborativeEditing}
-              isSaving={this.isSaving}
-              isPublishing={this.isPublishing}
-              publishingIsDisabled={
-                document.isSaving || this.isPublishing || this.isEmpty
-              }
-              savingIsDisabled={document.isSaving || this.isEmpty}
-              sharedTree={this.props.sharedTree}
-              onSelectTemplate={this.replaceDocument}
-              onSave={this.onSave}
-              headings={this.headings}
-              inlineTranslate={
+            <DocumentTranslationContext.Provider
+              value={
                 !shareId && !revision
                   ? {
-                      onSuccess: this.applyTranslationResult,
+                      onTranslateSuccess: this.applyTranslationResult,
                     }
-                  : undefined
+                  : null
               }
-            />
+            >
+              <Header
+                document={document}
+                documentHasHeadings={hasHeadings}
+                shareId={shareId}
+                isRevision={!!revision}
+                isDraft={document.isDraft}
+                isEditing={!readOnly && !team?.collaborativeEditing}
+                isSaving={this.isSaving}
+                isPublishing={this.isPublishing}
+                publishingIsDisabled={
+                  document.isSaving || this.isPublishing || this.isEmpty
+                }
+                savingIsDisabled={document.isSaving || this.isEmpty}
+                sharedTree={this.props.sharedTree}
+                onSelectTemplate={this.replaceDocument}
+                onSave={this.onSave}
+                headings={this.headings}
+              />
+            </DocumentTranslationContext.Provider>
             {this.translationPreview && (
               <TranslationPreviewBanner
                 onRevert={this.revertTranslation}
