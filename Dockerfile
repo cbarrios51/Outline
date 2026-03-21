@@ -3,12 +3,13 @@
 ARG APP_PATH=/opt/outline
 
 # --- Build: webpack + i18n + server (same flow as Dockerfile.base)
-FROM node:18-alpine AS builder
+# package.json engines: node ">= 14 <= 16" — must not use Node 18+
+FROM node:16-alpine AS builder
 
 ARG APP_PATH
 WORKDIR $APP_PATH
 
-# Use Yarn already present in node:18-alpine (do not npm install -g yarn — EEXIST conflict)
+RUN npm install -g yarn@1.22.22
 
 COPY package.json yarn.lock ./
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
@@ -24,12 +25,14 @@ RUN rm -rf node_modules
 RUN yarn install --production=true --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 
-# --- Runtime
-FROM node:18-alpine AS runner
+# --- Runtime (same major Node as build)
+FROM node:16-alpine AS runner
 
 ARG APP_PATH
 WORKDIR $APP_PATH
 ENV NODE_ENV=production
+
+RUN npm install -g yarn@1.22.22
 
 COPY --from=builder $APP_PATH/build ./build
 COPY --from=builder $APP_PATH/server ./server
