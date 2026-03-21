@@ -29,7 +29,12 @@ import { checkUpdates } from "./utils/updates";
 
 // If a services flag is passed it takes priority over the environment variable
 // for example: --services=web,worker
-const normalizedServiceFlag = getArg("services");
+let normalizedServiceFlag = getArg("services");
+
+// Railway and some hosts pass --web instead of --services=web,websockets,collaboration
+if (!normalizedServiceFlag && process.argv.includes("--web")) {
+  normalizedServiceFlag = "web,websockets,collaboration";
+}
 
 // The default is to run all services to make development and OSS installations
 // easier to deal with. Separate services are only needed at scale.
@@ -37,6 +42,7 @@ const serviceNames = uniq(
   (normalizedServiceFlag || env.SERVICES)
     .split(",")
     .map((service) => service.trim())
+    .filter(Boolean)
 );
 
 // The number of processes to run, defaults to the number of CPU's available
@@ -89,13 +95,7 @@ async function start(id: number, disconnect: () => void) {
 
   app.use(compress());
   // En desarrollo no enviar HSTS para que el navegador no fuerce https://localhost
-  app.use(
-    helmet(
-      env.ENVIRONMENT === "development"
-        ? { hsts: false }
-        : {}
-    )
-  );
+  app.use(helmet(env.ENVIRONMENT === "development" ? { hsts: false } : {}));
 
   // catch errors in one place, automatically set status and response headers
   onerror(app);

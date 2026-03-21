@@ -46,5 +46,5 @@ RUN addgroup -g 1001 -S nodejs && \
 USER nodejs
 
 EXPOSE 3000
-# Same as package.json "start" — avoids relying on global yarn in PATH for nodejs user
-CMD ["node", "./build/server/index.js"]
+# Procfile web: web+websockets+collaboration. Must use --services=... (not --web) or "Unknown service" crash.
+CMD ["node", "./build/server/index.js", "--services=web,websockets,collaboration"]
