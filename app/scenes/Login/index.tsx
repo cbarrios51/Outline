@@ -43,7 +43,7 @@ function Header({ config }: { config?: Config | undefined }) {
   }
 
   return (
-    <Back href="https://www.getoutline.com">
+    <Back href={env.URL}>
       <BackIcon color="currentColor" /> {t("Back to website")}
     </Back>
   );
