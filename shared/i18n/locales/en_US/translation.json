@@ -726,5 +726,16 @@
   "This month": "This month",
   "Last month": "Last month",
   "This year": "This year",
-  "Uploading": "Uploading"
+  "Uploading": "Uploading",
+  "Translate document": "Translate document",
+  "The document title and body will be translated to match your interface language. The source language is detected automatically. You can save or revert the result afterwards.": "The document title and body will be translated to match your interface language. The source language is detected automatically. You can save or revert the result afterwards.",
+  "Translation ready. Source language detected: {{source}}.": "Translation ready. Source language detected: {{source}}.",
+  "Could not translate document": "Could not translate document",
+  "Translate": "Translate",
+  "Translating…": "Translating…",
+  "Translation preview: the document shows translated text. Save to keep it in Outline, or revert to the previous version.": "Translation preview: the document shows translated text. Save to keep it in Outline, or revert to the previous version.",
+  "Revert translation": "Revert translation",
+  "Save translation": "Save translation",
+  "Could not apply translation": "Could not apply translation",
+  "Discard translation preview?\nYou will lose the translated text unless you saved it.": "Discard translation preview?\nYou will lose the translated text unless you saved it."
 }

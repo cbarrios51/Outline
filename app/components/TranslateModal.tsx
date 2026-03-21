@@ -1,6 +1,7 @@
 import { observer } from "mobx-react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { i18nLanguageToDeepLTarget } from "@shared/utils/deeplTargetLanguage";
 import Button from "~/components/Button";
 import Flex from "~/components/Flex";
 import Modal from "~/components/Modal";
@@ -8,35 +9,30 @@ import NudeButton from "~/components/NudeButton";
 import Text from "~/components/Text";
 import useToasts from "~/hooks/useToasts";
 
-const LANGUAGES = [
-  { code: "ES", label: "Español" },
-  { code: "EN-US", label: "Inglés (US)" },
-  { code: "EN-GB", label: "Inglés (UK)" },
-  { code: "FR", label: "Francés" },
-  { code: "DE", label: "Alemán" },
-  { code: "IT", label: "Italiano" },
-  { code: "PT-BR", label: "Portugués (BR)" },
-  { code: "PT-PT", label: "Portugués (PT)" },
-  { code: "RU", label: "Ruso" },
-  { code: "JA", label: "Japonés" },
-  { code: "ZH", label: "Chino" },
-  { code: "KO", label: "Coreano" },
-  { code: "PL", label: "Polaco" },
-  { code: "NL", label: "Holandés" },
-  { code: "SV", label: "Sueco" },
-  { code: "AR", label: "Árabe" },
-];
+export type TranslateSuccessPayload = {
+  translatedTitle: string;
+  translatedText: string;
+};
 
 type Props = {
   documentId: string;
   onRequestClose: () => void;
+  onTranslateSuccess: (payload: TranslateSuccessPayload) => void;
 };
 
-function TranslateModal({ documentId, onRequestClose }: Props) {
-  const { t } = useTranslation();
+function TranslateModal({
+  documentId,
+  onRequestClose,
+  onTranslateSuccess,
+}: Props) {
+  const { t, i18n } = useTranslation();
   const { showToast } = useToasts();
-  const [targetLanguage, setTargetLanguage] = React.useState("EN-US");
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const targetLanguage = React.useMemo(
+    () => i18nLanguageToDeepLTarget(i18n.language),
+    [i18n.language]
+  );
 
   const handleTranslate = async () => {
     setIsLoading(true);
@@ -53,25 +49,29 @@ function TranslateModal({ documentId, onRequestClose }: Props) {
       }
 
       const json = await response.json();
-      const { translatedText, detectedSourceLanguage } = json.data;
+      const {
+        translatedTitle,
+        translatedText,
+        detectedSourceLanguage,
+      } = json.data;
 
       showToast(
-        t(`Idioma detectado: {{ lang }} → traducido correctamente`, {
-          lang: detectedSourceLanguage?.toUpperCase() ?? "AUTO",
-        }),
+        t(
+          "Translation ready. Source language detected: {{source}}.",
+          {
+            source: (detectedSourceLanguage ?? "?").toString().toUpperCase(),
+          }
+        ),
         { type: "success" }
       );
 
-      // Abrir el texto traducido en una nueva pestaña del navegador
-      const blob = new Blob([translatedText], {
-        type: "text/plain;charset=utf-8",
+      onTranslateSuccess({
+        translatedTitle,
+        translatedText,
       });
-      const url = URL.createObjectURL(blob);
-      window.open(url, "_blank");
-
       onRequestClose();
-    } catch (err) {
-      showToast(t("Error al traducir el documento"), { type: "error" });
+    } catch (_err) {
+      showToast(t("Could not translate document"), { type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -79,41 +79,21 @@ function TranslateModal({ documentId, onRequestClose }: Props) {
 
   return (
     <Modal
-      title={t("Traducir documento")}
+      title={t("Translate document")}
       onRequestClose={onRequestClose}
       isOpen
     >
       <Flex column gap={16} style={{ padding: "16px 0" }}>
         <Text type="secondary">
           {t(
-            "El idioma origen se detecta automáticamente. Selecciona el idioma destino:"
+            "The document title and body will be translated to match your interface language. The source language is detected automatically. You can save or revert the result afterwards."
           )}
         </Text>
 
-        <select
-          value={targetLanguage}
-          onChange={(e) => setTargetLanguage(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "8px 12px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            fontSize: "14px",
-            backgroundColor: "var(--background)",
-            color: "var(--text)",
-          }}
-        >
-          {LANGUAGES.map((lang) => (
-            <option key={lang.code} value={lang.code}>
-              {lang.label}
-            </option>
-          ))}
-        </select>
-
         <Flex gap={8} justify="flex-end">
-          <NudeButton onClick={onRequestClose}>{t("Cancelar")}</NudeButton>
+          <NudeButton onClick={onRequestClose}>{t("Cancel")}</NudeButton>
           <Button onClick={handleTranslate} disabled={isLoading}>
-            {isLoading ? t("Traduciendo…") : t("Traducir")}
+            {isLoading ? t("Translating…") : t("Translate")}
           </Button>
         </Flex>
       </Flex>

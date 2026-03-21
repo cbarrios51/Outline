@@ -3,6 +3,7 @@ import Router from "koa-router";
 import auth from "@server/middlewares/authentication";
 import Document from "@server/models/Document";
 import env from "@server/env";
+import { authorize } from "@server/policies";
 
 const router = new Router();
 
@@ -19,24 +20,50 @@ router.post(
             ctx.throw(400, "documentId and targetLanguage are required");
         }
 
-        const document = await Document.findByPk(documentId);
+        if (!env.DEEPL_API_KEY) {
+            ctx.throw(503, "Translation service is not configured");
+        }
+
+        const { user } = ctx.state;
+
+        const document = await Document.findByPk(documentId, {
+            userId: user.id,
+        });
 
         if (!document) {
             ctx.throw(404, "Document not found");
         }
 
-        const client = new deepl.DeepLClient(env.DEEPL_API_KEY ?? "");
+        authorize(user, "read", document);
 
-        const result = await client.translateText(
-            document!.text,
+        const client = new deepl.DeepLClient(env.DEEPL_API_KEY);
+        const target = targetLanguage as deepl.TargetLanguageCode;
+
+        let translatedTitle = document.title;
+        let titleDetected: string | undefined;
+
+        if (document.title?.trim()) {
+            const titleResult = await client.translateText(
+                document.title,
+                null,
+                target
+            );
+            translatedTitle = titleResult.text.trim();
+            titleDetected = titleResult.detectedSourceLang;
+        }
+
+        const bodyResult = await client.translateText(
+            document.text,
             null,
-            targetLanguage as deepl.TargetLanguageCode
+            target
         );
 
         ctx.body = {
             data: {
-                translatedText: result.text,
-                detectedSourceLanguage: result.detectedSourceLang,
+                translatedTitle,
+                translatedText: bodyResult.text,
+                detectedSourceLanguage:
+                    bodyResult.detectedSourceLang ?? titleDetected,
                 targetLanguage,
             },
         };

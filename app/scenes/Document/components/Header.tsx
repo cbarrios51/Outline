@@ -33,6 +33,7 @@ import { newDocumentPath, editDocumentUrl } from "~/utils/routeHelpers";
 import ObservingBanner from "./ObservingBanner";
 import PublicBreadcrumb from "./PublicBreadcrumb";
 import ShareButton from "./ShareButton";
+import { TranslateSuccessPayload } from "~/components/TranslateModal";
 
 type Props = {
   document: Document;
@@ -57,6 +58,9 @@ type Props = {
     level: number;
     id: string;
   }[];
+  inlineTranslate?: {
+    onSuccess: (payload: TranslateSuccessPayload) => void;
+  };
 };
 
 function DocumentHeader({
@@ -74,6 +78,7 @@ function DocumentHeader({
   onSelectTemplate,
   onSave,
   headings,
+  inlineTranslate,
 }: Props) {
   const { t } = useTranslation();
   const { ui, auth } = useStores();
@@ -320,6 +325,7 @@ function DocumentHeader({
                     )}
                     showToggleEmbeds={canToggleEmbeds}
                     showDisplayOptions
+                    inlineTranslate={inlineTranslate}
                   />
                 </Action>
               </>

@@ -45,7 +45,9 @@ import useMobile from "~/hooks/useMobile";
 import usePolicy from "~/hooks/usePolicy";
 import useStores from "~/hooks/useStores";
 import useToasts from "~/hooks/useToasts";
-import TranslateModal from "~/components/TranslateModal";
+import TranslateModal, {
+  TranslateSuccessPayload,
+} from "~/components/TranslateModal";
 import { MenuItem } from "~/types";
 import {
   documentHistoryUrl,
@@ -66,6 +68,10 @@ type Props = {
   label?: (props: MenuButtonHTMLProps) => React.ReactNode;
   onOpen?: () => void;
   onClose?: () => void;
+  /** When set, translation runs in-app with save/revert; when omitted the menu hides translate. */
+  inlineTranslate?: {
+    onSuccess: (payload: TranslateSuccessPayload) => void;
+  };
 };
 
 function DocumentMenu({
@@ -78,6 +84,7 @@ function DocumentMenu({
   label,
   onOpen,
   onClose,
+  inlineTranslate,
 }: Props) {
   const team = useCurrentTeam();
   const { policies, collections, documents } = useStores();
@@ -333,13 +340,6 @@ function DocumentMenu({
             // Pin document
             actionToMenuItem(pinDocument, context),
             {
-              type: "button",
-              title: t("Traducir documento"),
-              visible: !!can.read,
-              onClick: () => setShowTranslateModal(true),
-              icon: <GlobeIcon />,
-            },
-            {
               type: "separator",
             },
             {
@@ -432,6 +432,13 @@ function DocumentMenu({
             },
             {
               type: "button",
+              title: t("Translate document"),
+              visible: !!can.read && !!inlineTranslate,
+              onClick: () => setShowTranslateModal(true),
+              icon: <GlobeIcon />,
+            },
+            {
+              type: "button",
               title: t("Print"),
               onClick: handlePrint,
               visible: !!showDisplayOptions,
@@ -474,10 +481,11 @@ function DocumentMenu({
           </>
         )}
       </ContextMenu>
-      {showTranslateModal && (
+      {showTranslateModal && inlineTranslate && (
         <TranslateModal
           documentId={document.id}
           onRequestClose={() => setShowTranslateModal(false)}
+          onTranslateSuccess={inlineTranslate.onSuccess}
         />
       )}
       {renderModals && (

@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-import { action, observable } from "mobx";
+import { action, observable, runInAction } from "mobx";
 import { observer } from "mobx-react";
 import { AllSelection } from "prosemirror-state";
 import * as React from "react";
@@ -43,6 +43,7 @@ import {
   documentUrl,
   updateDocumentUrl,
 } from "~/utils/routeHelpers";
+import { TranslateSuccessPayload } from "~/components/TranslateModal";
 import Container from "./Container";
 import Contents from "./Contents";
 import Editor from "./Editor";
@@ -52,6 +53,7 @@ import MarkAsViewed from "./MarkAsViewed";
 import Notices from "./Notices";
 import PublicReferences from "./PublicReferences";
 import References from "./References";
+import TranslationPreviewBanner from "./TranslationPreviewBanner";
 
 const AUTOSAVE_DELAY = 3000;
 
@@ -109,6 +111,11 @@ class DocumentScene extends React.Component<Props> {
   @observable
   headings: Heading[] = [];
 
+  /** Snapshot before an in-app translation preview; cleared on save or revert. */
+  @observable
+  translationPreview: { originalText: string; originalTitle: string } | null =
+    null;
+
   getEditorText: () => string = () => this.props.document.text;
 
   componentDidMount() {
@@ -163,6 +170,80 @@ class DocumentScene extends React.Component<Props> {
       this.props.document.delete();
     }
   }
+
+  applyTranslationResult = (payload: TranslateSuccessPayload) => {
+    const { translatedTitle, translatedText } = payload;
+    const { document, t } = this.props;
+    const originalText = this.getEditorText();
+    const originalTitle = document.title;
+
+    runInAction(() => {
+      this.translationPreview = { originalText, originalTitle };
+      this.title = translatedTitle;
+      document.title = translatedTitle;
+      document.text = translatedText;
+    });
+
+    const editorRef = this.editor.current;
+    if (editorRef) {
+      const { view, parser } = editorRef;
+      try {
+        view.dispatch(
+          view.state.tr
+            .setSelection(new AllSelection(view.state.doc))
+            .replaceSelectionWith(parser.parse(translatedText))
+        );
+      } catch (_err) {
+        runInAction(() => {
+          this.translationPreview = null;
+          this.title = originalTitle;
+          document.title = originalTitle;
+          document.text = originalText;
+        });
+        this.props.toasts.showToast(t("Could not apply translation"), {
+          type: "error",
+        });
+        return;
+      }
+    }
+    this.updateIsDirty();
+  };
+
+  revertTranslation = () => {
+    if (!this.translationPreview) {
+      return;
+    }
+    const { originalText, originalTitle } = this.translationPreview;
+    const { document } = this.props;
+
+    runInAction(() => {
+      this.translationPreview = null;
+      this.title = originalTitle;
+      document.title = originalTitle;
+      document.text = originalText;
+    });
+
+    const editorRef = this.editor.current;
+    if (editorRef) {
+      const { view, parser } = editorRef;
+      view.dispatch(
+        view.state.tr
+          .setSelection(new AllSelection(view.state.doc))
+          .replaceSelectionWith(parser.parse(originalText))
+      );
+    }
+    this.updateIsDirty();
+  };
+
+  saveTranslation = async () => {
+    if (!this.translationPreview) {
+      return;
+    }
+    runInAction(() => {
+      this.translationPreview = null;
+    });
+    await this.onSave({ done: false, autosave: false });
+  };
 
   replaceDocument = (template: Document | Revision) => {
     const editorRef = this.editor.current;
@@ -532,6 +613,12 @@ class DocumentScene extends React.Component<Props> {
                     `Images are still uploading.\nAre you sure you want to discard them?`
                   )}
                 />
+                <Prompt
+                  when={!!this.translationPreview && !team?.collaborativeEditing}
+                  message={t(
+                    `Discard translation preview?\nYou will lose the translated text unless you saved it.`
+                  ) as string}
+                />
               </>
             )}
             <Header
@@ -551,7 +638,27 @@ class DocumentScene extends React.Component<Props> {
               onSelectTemplate={this.replaceDocument}
               onSave={this.onSave}
               headings={this.headings}
+              inlineTranslate={
+                !shareId && !revision
+                  ? {
+                      onSuccess: this.applyTranslationResult,
+                    }
+                  : undefined
+              }
             />
+            {this.translationPreview && (
+              <TranslationPreviewBanner
+                onRevert={this.revertTranslation}
+                onSave={this.saveTranslation}
+                canSave={
+                  abilities.update &&
+                  !readOnly &&
+                  !revision &&
+                  !document.isArchived &&
+                  !shareId
+                }
+              />
+            )}
             <MaxWidth
               archived={document.isArchived}
               showContents={showContents}

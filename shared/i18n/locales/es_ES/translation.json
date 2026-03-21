@@ -727,5 +727,16 @@
   "This month": "Este mes",
   "Last month": "El mes pasado",
   "This year": "Este año",
-  "Uploading": "Subiendo"
+  "Uploading": "Subiendo",
+  "Translate document": "Traducir documento",
+  "The document title and body will be translated to match your interface language. The source language is detected automatically. You can save or revert the result afterwards.": "Se traducirán el título y el cuerpo del documento al idioma de la interfaz. El idioma de origen se detecta automáticamente. Luego podrás guardar o revertir el resultado.",
+  "Translation ready. Source language detected: {{source}}.": "Traducción lista. Idioma de origen detectado: {{source}}.",
+  "Could not translate document": "No se pudo traducir el documento",
+  "Translate": "Traducir",
+  "Translating…": "Traduciendo…",
+  "Translation preview: the document shows translated text. Save to keep it in Outline, or revert to the previous version.": "Vista previa de traducción: el documento muestra el texto traducido. Guarda para conservarlo en Outline o revierte para volver a la versión anterior.",
+  "Revert translation": "Revertir traducción",
+  "Save translation": "Guardar traducción",
+  "Could not apply translation": "No se pudo aplicar la traducción",
+  "Discard translation preview?\nYou will lose the translated text unless you saved it.": "¿Descartar la vista previa de traducción?\nPerderás el texto traducido a menos que lo hayas guardado."
 }
