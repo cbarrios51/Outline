@@ -1,10 +1,10 @@
 import { observer } from "mobx-react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import styled, { keyframes } from "styled-components";
 import { i18nLanguageToDeepLTarget } from "@shared/utils/deeplTargetLanguage";
 import Button from "~/components/Button";
 import Flex from "~/components/Flex";
-import Modal from "~/components/Modal";
 import NudeButton from "~/components/NudeButton";
 import Text from "~/components/Text";
 import useToasts from "~/hooks/useToasts";
@@ -20,6 +20,8 @@ type Props = {
   onTranslateSuccess: (payload: TranslateSuccessPayload) => void;
 };
 
+const STORAGE_KEY = "outline-translate-skip-confirm";
+
 function TranslateModal({
   documentId,
   onRequestClose,
@@ -28,6 +30,7 @@ function TranslateModal({
   const { t, i18n } = useTranslation();
   const { showToast } = useToasts();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [dontShowAgain, setDontShowAgain] = React.useState(false);
 
   const targetLanguage = React.useMemo(
     () => i18nLanguageToDeepLTarget(i18n.language),
@@ -35,6 +38,9 @@ function TranslateModal({
   );
 
   const handleTranslate = async () => {
+    if (dontShowAgain) {
+      localStorage.setItem(STORAGE_KEY, "true");
+    }
     setIsLoading(true);
     try {
       const response = await fetch("/api/translations.translate", {
@@ -62,10 +68,7 @@ function TranslateModal({
         { type: "success" }
       );
 
-      onTranslateSuccess({
-        translatedTitle,
-        translatedText,
-      });
+      onTranslateSuccess({ translatedTitle, translatedText });
       onRequestClose();
     } catch (_err) {
       showToast(t("Could not translate document"), { type: "error" });
@@ -75,27 +78,100 @@ function TranslateModal({
   };
 
   return (
-    <Modal
-      title={t("Translate document")}
-      onRequestClose={onRequestClose}
-      isOpen
-    >
-      <Flex column gap={16} style={{ padding: "16px 0" }}>
-        <Text type="secondary">
+    <Overlay onClick={onRequestClose}>
+      <Popup onClick={(e) => e.stopPropagation()}>
+        <PopupHeader>
+          <PopupTitle>{t("Translate document")}</PopupTitle>
+          <CloseButton onClick={onRequestClose}>✕</CloseButton>
+        </PopupHeader>
+
+        <Text type="secondary" style={{ fontSize: 13, margin: "8px 0 12px" }}>
           {t(
             "The document title and body will be translated to match your interface language. The source language is detected automatically. You can save or revert the result afterwards."
           )}
         </Text>
 
-        <Flex gap={8} justify="flex-end">
+        <CheckboxRow>
+          <input
+            type="checkbox"
+            id="dontShowAgain"
+            checked={dontShowAgain}
+            onChange={(e) => setDontShowAgain(e.target.checked)}
+          />
+          <label
+            htmlFor="dontShowAgain"
+            style={{ fontSize: 12, cursor: "pointer" }}
+          >
+            {t("No mostrar de nuevo")}
+          </label>
+        </CheckboxRow>
+
+        <Flex gap={8} justify="flex-end" style={{ marginTop: 12 }}>
           <NudeButton onClick={onRequestClose}>{t("Cancel")}</NudeButton>
           <Button onClick={handleTranslate} disabled={isLoading}>
             {isLoading ? t("Translating…") : t("Translate")}
           </Button>
         </Flex>
-      </Flex>
-    </Modal>
+      </Popup>
+    </Overlay>
   );
 }
+
+const slideIn = keyframes`
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+`;
+
+const Popup = styled.div`
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 320px;
+  background: ${(props) => props.theme.background};
+  border: 1px solid ${(props) => props.theme.divider};
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  padding: 16px;
+  animation: ${slideIn} 0.2s ease;
+  z-index: 10000;
+`;
+
+const PopupHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+`;
+
+const PopupTitle = styled.span`
+  font-weight: 600;
+  font-size: 15px;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: ${(props) => props.theme.textTertiary};
+  padding: 2px 4px;
+  border-radius: 4px;
+  &:hover {
+    background: ${(props) => props.theme.backgroundSecondary};
+  }
+`;
+
+const CheckboxRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+`;
 
 export default observer(TranslateModal);
