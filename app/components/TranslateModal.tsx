@@ -129,7 +129,7 @@ function TranslateModal({
         </label>
       </CheckboxRow>
 
-      <Flex gap={8} justify="flex-end" style={{ marginTop: 12 }}>
+      <Flex gap={8} justify="flex-end" align="center" style={{ marginTop: 16 }}>
         <NudeButton
           onClick={onRequestClose}
           style={{ padding: "0 12px", minWidth: 70 }}
@@ -187,7 +187,7 @@ const CloseButton = styled.button`
   padding: 2px 6px;
   border-radius: 4px;
   &:hover {
-    background: ${(props) => props.theme.backgroundSecondary};
+    background: ${(props) => props.theme.background};
   }
 `;
 
