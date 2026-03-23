@@ -186,7 +186,7 @@ const CloseButton = styled.button`
   padding: 2px 4px;
   border-radius: 4px;
   &:hover {
-    background: ${(props) => props.theme.backgroundSecondary};
+    background: ${(props) => props.theme.background};
   }
 `;
 
