@@ -31,13 +31,14 @@ function TranslateModal({
   const { showToast } = useToasts();
   const [isLoading, setIsLoading] = React.useState(false);
   const [dontShowAgain, setDontShowAgain] = React.useState(false);
+  const [visible, setVisible] = React.useState(false);
 
   const targetLanguage = React.useMemo(
     () => i18nLanguageToDeepLTarget(i18n.language),
     [i18n.language]
   );
 
-  const handleTranslate = async () => {
+  const handleTranslate = React.useCallback(async () => {
     if (dontShowAgain) {
       localStorage.setItem(STORAGE_KEY, "true");
     }
@@ -72,10 +73,32 @@ function TranslateModal({
       onRequestClose();
     } catch (_err) {
       showToast(t("Could not translate document"), { type: "error" });
+      setVisible(true);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [
+    documentId,
+    targetLanguage,
+    dontShowAgain,
+    onTranslateSuccess,
+    onRequestClose,
+    showToast,
+    t,
+  ]);
+
+  React.useEffect(() => {
+    const skip = localStorage.getItem(STORAGE_KEY) === "true";
+    if (skip) {
+      void handleTranslate();
+    } else {
+      setVisible(true);
+    }
+  }, []);
+
+  if (!visible) {
+    return null;
+  }
 
   return (
     <Overlay onClick={onRequestClose}>
