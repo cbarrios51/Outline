@@ -101,54 +101,46 @@ function TranslateModal({
   }
 
   return (
-    <Overlay onClick={onRequestClose}>
-      <Popup onClick={(e) => e.stopPropagation()}>
-        <PopupHeader>
-          <PopupTitle>{t("Translate document")}</PopupTitle>
-          <CloseButton onClick={onRequestClose}>✕</CloseButton>
-        </PopupHeader>
+    <Popup>
+      <PopupHeader>
+        <PopupTitle>{t("Translate document")}</PopupTitle>
+        <CloseButton onClick={onRequestClose}>✕</CloseButton>
+      </PopupHeader>
 
-        <Text type="secondary" style={{ fontSize: 13, margin: "8px 0 12px" }}>
-          {t(
-            "The document title and body will be translated to match your interface language. The source language is detected automatically. You can save or revert the result afterwards."
-          )}
-        </Text>
+      <Text type="secondary" style={{ fontSize: 13, margin: "8px 0 12px" }}>
+        {t(
+          "The document title and body will be translated to match your interface language. The source language is detected automatically. You can save or revert the result afterwards."
+        )}
+      </Text>
 
-        <CheckboxRow>
-          <input
-            type="checkbox"
-            id="dontShowAgain"
-            checked={dontShowAgain}
-            onChange={(e) => setDontShowAgain(e.target.checked)}
-          />
-          <label
-            htmlFor="dontShowAgain"
-            style={{ fontSize: 12, cursor: "pointer" }}
-          >
-            {t("No mostrar de nuevo")}
-          </label>
-        </CheckboxRow>
+      <CheckboxRow>
+        <input
+          type="checkbox"
+          id="dontShowAgain"
+          checked={dontShowAgain}
+          onChange={(e) => setDontShowAgain(e.target.checked)}
+        />
+        <label
+          htmlFor="dontShowAgain"
+          style={{ fontSize: 12, cursor: "pointer" }}
+        >
+          {t("No mostrar de nuevo")}
+        </label>
+      </CheckboxRow>
 
-        <Flex gap={8} justify="flex-end" style={{ marginTop: 12 }}>
-          <NudeButton onClick={onRequestClose}>{t("Cancel")}</NudeButton>
-          <Button onClick={handleTranslate} disabled={isLoading}>
-            {isLoading ? t("Translating…") : t("Translate")}
-          </Button>
-        </Flex>
-      </Popup>
-    </Overlay>
+      <Flex gap={8} justify="flex-end" style={{ marginTop: 12 }}>
+        <NudeButton onClick={onRequestClose}>{t("Cancel")}</NudeButton>
+        <Button onClick={handleTranslate} disabled={isLoading}>
+          {isLoading ? t("Translating…") : t("Translate")}
+        </Button>
+      </Flex>
+    </Popup>
   );
 }
 
 const slideIn = keyframes`
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
 `;
 
 const Popup = styled.div`
