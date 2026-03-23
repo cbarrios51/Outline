@@ -13,32 +13,30 @@ type Props = {
 
 function TranslationPreviewBanner({ onRevert, onSave, canSave }: Props) {
   const { t, i18n } = useTranslation();
-  const [isLoaded, setIsLoaded] = React.useState(false);
 
-  React.useEffect(() => {
-    if (i18n.isInitialized) {
-      i18n.loadLanguages([i18n.language]).then(() => setIsLoaded(true));
-    }
-  }, [i18n]);
+  const isSpanish = i18n.language?.startsWith("es");
 
-  if (!isLoaded) {
-    return null;
-  }
+  const message = isSpanish
+    ? "Vista previa de traducción: el documento muestra el texto traducido. Guarda para conservarlo en Outline o revierte para volver a la versión anterior."
+    : t(
+        "Translation preview: the document shows translated text. Save to keep it in Outline, or revert to the previous version."
+      );
+
+  const revertLabel = isSpanish
+    ? "Revertir traducción"
+    : t("Revert translation");
+  const saveLabel = isSpanish ? "Guardar traducción" : t("Save translation");
 
   return (
     <Banner role="status">
       <Flex align="center" gap={16} justify="space-between">
-        <Message>
-          {t(
-            "Translation preview: the document shows translated text. Save to keep it in Outline, or revert to the previous version."
-          )}
-        </Message>
+        <Message>{message}</Message>
         <Flex gap={8}>
           <Button onClick={onRevert} neutral>
-            {t("Revert translation")}
+            {revertLabel}
           </Button>
           <Button onClick={onSave} disabled={!canSave}>
-            {t("Save translation")}
+            {saveLabel}
           </Button>
         </Flex>
       </Flex>
