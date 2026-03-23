@@ -31,8 +31,8 @@ import PageTitle from "~/components/PageTitle";
 import PlaceholderDocument from "~/components/PlaceholderDocument";
 import RegisterKeyDown from "~/components/RegisterKeyDown";
 import { TranslateSuccessPayload } from "~/components/TranslateModal";
-import { DocumentTranslationContext } from "~/contexts/DocumentTranslationContext";
 import withStores from "~/components/withStores";
+import { DocumentTranslationContext } from "~/contexts/DocumentTranslationContext";
 import type { Editor as TEditor } from "~/editor";
 import { NavigationNode } from "~/types";
 import { client } from "~/utils/ApiClient";
@@ -662,7 +662,6 @@ class DocumentScene extends React.Component<Props> {
                 onSave={this.saveTranslation}
                 canSave={
                   abilities.update &&
-                  !readOnly &&
                   !revision &&
                   !document.isArchived &&
                   !shareId
