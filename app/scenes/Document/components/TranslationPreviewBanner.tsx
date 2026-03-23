@@ -12,9 +12,16 @@ type Props = {
 };
 
 function TranslationPreviewBanner({ onRevert, onSave, canSave }: Props) {
-  const { t, ready } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [isLoaded, setIsLoaded] = React.useState(false);
 
-  if (!ready) {
+  React.useEffect(() => {
+    if (i18n.isInitialized) {
+      i18n.loadLanguages([i18n.language]).then(() => setIsLoaded(true));
+    }
+  }, [i18n]);
+
+  if (!isLoaded) {
     return null;
   }
 
