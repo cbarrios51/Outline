@@ -1,5 +1,6 @@
 import { observer } from "mobx-react";
 import * as React from "react";
+import ReactDOM from "react-dom";
 import { useTranslation } from "react-i18next";
 import styled, { keyframes } from "styled-components";
 import { i18nLanguageToDeepLTarget } from "@shared/utils/deeplTargetLanguage";
@@ -100,7 +101,7 @@ function TranslateModal({
     return null;
   }
 
-  return (
+  return ReactDOM.createPortal(
     <Popup>
       <PopupHeader>
         <PopupTitle>{t("Translate document")}</PopupTitle>
@@ -134,7 +135,8 @@ function TranslateModal({
           {isLoading ? t("Translating…") : t("Translate")}
         </Button>
       </Flex>
-    </Popup>
+    </Popup>,
+    document.body
   );
 }
 
@@ -148,13 +150,14 @@ const Popup = styled.div`
   bottom: 24px;
   right: 24px;
   width: 320px;
-  background: ${(props) => props.theme.background};
-  border: 1px solid ${(props) => props.theme.divider};
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   padding: 16px;
   animation: ${slideIn} 0.2s ease;
-  z-index: 10000;
+  z-index: 99999;
+  color: #ffffff;
 `;
 
 const PopupHeader = styled.div`
@@ -174,11 +177,11 @@ const CloseButton = styled.button`
   border: none;
   cursor: pointer;
   font-size: 14px;
-  color: ${(props) => props.theme.textTertiary};
+  color: #aaa;
   padding: 2px 4px;
   border-radius: 4px;
   &:hover {
-    background: ${(props) => props.theme.background};
+    background: rgba(255, 255, 255, 0.1);
   }
 `;
 
