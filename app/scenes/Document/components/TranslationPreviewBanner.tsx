@@ -12,11 +12,15 @@ type Props = {
 };
 
 function TranslationPreviewBanner({ onRevert, onSave, canSave }: Props) {
-  const { t } = useTranslation();
+  const { t, ready } = useTranslation();
+
+  if (!ready) {
+    return null;
+  }
 
   return (
     <Banner role="status">
-      <Flex align="center" gap={16} justify="space-between" wrap>
+      <Flex align="center" gap={16} justify="space-between">
         <Message>
           {t(
             "Translation preview: the document shows translated text. Save to keep it in Outline, or revert to the previous version."
