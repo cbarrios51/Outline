@@ -130,7 +130,12 @@ function TranslateModal({
       </CheckboxRow>
 
       <Flex gap={8} justify="flex-end" style={{ marginTop: 12 }}>
-        <NudeButton onClick={onRequestClose}>{t("Cancel")}</NudeButton>
+        <NudeButton
+          onClick={onRequestClose}
+          style={{ padding: "0 12px", minWidth: 70 }}
+        >
+          {t("Cancel")}
+        </NudeButton>
         <Button onClick={handleTranslate} disabled={isLoading}>
           {isLoading ? t("Translating…") : t("Translate")}
         </Button>
@@ -149,15 +154,15 @@ const Popup = styled.div`
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 320px;
-  background: #1f1f1f;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: 360px;
+  background: ${(props) => props.theme.background};
+  color: ${(props) => props.theme.text};
+  border: 1px solid ${(props) => props.theme.divider};
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   padding: 16px;
   animation: ${slideIn} 0.2s ease;
   z-index: 99999;
-  color: #ffffff;
 `;
 
 const PopupHeader = styled.div`
@@ -170,6 +175,7 @@ const PopupHeader = styled.div`
 const PopupTitle = styled.span`
   font-weight: 600;
   font-size: 15px;
+  color: ${(props) => props.theme.text};
 `;
 
 const CloseButton = styled.button`
@@ -177,11 +183,11 @@ const CloseButton = styled.button`
   border: none;
   cursor: pointer;
   font-size: 14px;
-  color: #aaa;
-  padding: 2px 4px;
+  color: ${(props) => props.theme.textTertiary};
+  padding: 2px 6px;
   border-radius: 4px;
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: ${(props) => props.theme.backgroundSecondary};
   }
 `;
 
@@ -190,6 +196,7 @@ const CheckboxRow = styled.div`
   align-items: center;
   gap: 8px;
   margin-top: 4px;
+  color: ${(props) => props.theme.text};
 `;
 
 export default observer(TranslateModal);
